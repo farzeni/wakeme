@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.tpl": "jinja-html",
+        "string": "cpp",
+        "array": "cpp",
+        "string_view": "cpp"
+    },
+    "cSpell.words": [
+        "DFPLAYER",
+        "uiclock",
+        "Wakeme"
+    ]
+}
