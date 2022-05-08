@@ -12,17 +12,36 @@ WakemeAPI::WakemeAPI(WakemeState *state)
     _server = new AsyncWebServer(API_PORT);
 
     // Route for root / web page
-    _server->on("/ready", HTTP_GET, [&](AsyncWebServerRequest *request)
+    _server->on("/ready", HTTP_GET, [this](AsyncWebServerRequest *request)
                 { handleReady(request); });
 
-    _server->on("/alarms", HTTP_GET, [&](AsyncWebServerRequest *request)
+    _server->on("/alarms", HTTP_GET, [this](AsyncWebServerRequest *request)
                 { handleGetAlarms(request); });
+
+    _server->on("^\\/alarms\\/(.*)$", HTTP_DELETE, [this](AsyncWebServerRequest *request)
+                { handleDeleteAlarm(request); });
+
+    _server->on("/alarms_all", HTTP_DELETE, [this](AsyncWebServerRequest *request)
+                { handleDeleteAllAlarms(request); });
 
     _server->addHandler(new AsyncCallbackJsonWebHandler(
         "/alarms",
         [this](AsyncWebServerRequest *request, JsonVariant &json)
         {
-            handleCreateAlarm(request, json);
+            if (request->method() == HTTP_POST)
+            {
+                handleCreateAlarm(request, json);
+            }
+        }));
+
+    _server->addHandler(new AsyncCallbackJsonWebHandler(
+        "^\\/alarms\\/(.*)$",
+        [this](AsyncWebServerRequest *request, JsonVariant &json)
+        {
+            if (request->method() == HTTP_PUT)
+            {
+                handleUpdateAlarm(request, json);
+            }
         }));
 
     log_d("HTTP server started");
@@ -47,30 +66,13 @@ void WakemeAPI::handleGetAlarms(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
 
-    std::vector<Alarm *> alarms = _state->getAlarms();;
+    std::vector<Alarm *> alarms = _state->getAlarms();
+    ;
     //_storage->getAlarms();
     log_d("Get alarms %d", *_state);
-
-    const int capacity = JSON_OBJECT_SIZE(6) + JSON_ARRAY_SIZE(20);
-    StaticJsonDocument<capacity> doc;
-    JsonArray objs = doc.createNestedArray("alarms");
-    
-    log_d("Get alarms:: create array response %d", alarms.size());
-
-    for (int i = 0; i < alarms.size(); i++)
-    {
-        log_d("Get alarms:: create object response %d", i);
-        const Alarm alarm = *alarms[i];
-        JsonObject a = objs.createNestedObject();
-        log_d("Get alarms:: create object response %s", alarm.days);
-        a["days"] = alarm.days;
-        a["hour"] = alarm.hour;
-        a["minute"] = alarm.minute;
-        a["sound"] = alarm.sound;
-        a["enabled"] = alarm.enabled;
-    }
-
+    DynamicJsonDocument doc = alarmsToJSON(alarms);
     String data;
+
     log_d("serializeJson()");
     serializeJson(doc, *response);
 
@@ -91,7 +93,7 @@ void WakemeAPI::handleCreateAlarm(AsyncWebServerRequest *request, JsonVariant &j
     if (isValidAlarmData(data))
     {
         log_d("is valid data");
-        Alarm* alarm = alarmFromJSON(data);
+        Alarm *alarm = alarmFromJSON(data);
         log_d("alrm created");
         bool error = _state->addAlarm(alarm);
         log_d("alrm added %d", error);
@@ -125,8 +127,8 @@ void WakemeAPI::handleUpdateAlarm(AsyncWebServerRequest *request, JsonVariant &j
 
     if (isValidAlarmData(data))
     {
-        Alarm* alarm = alarmFromJSON(data);
-        _state->setAlarm(alarmId.toInt(), alarm);
+        Alarm *alarm = alarmFromJSON(data);
+        _state->setAlarm(alarmId, alarm);
         request->send_P(200, "text/plain", "{\"status\":\"OK\"}");
     }
     else
@@ -137,7 +139,22 @@ void WakemeAPI::handleUpdateAlarm(AsyncWebServerRequest *request, JsonVariant &j
 
 void WakemeAPI::handleDeleteAlarm(AsyncWebServerRequest *request)
 {
-    // String alarmId = _server.pathArg(0);
-    // log_d("Delete alarm: %s", alarmId);
-    // _state->deleteAlarm(alarmId.toInt());
+    String alarmId = request->pathArg(0);
+    log_d("Delete alarm: %s", alarmId);
+
+    bool success = _state->deleteAlarm(alarmId);
+    if (success)
+    {
+        request->send_P(200, "text/plain", "{\"status\":\"OK\"}");
+    }
+    else
+    {
+        request->send_P(400, "text/plain", "{\"status\":\"KO\"}");
+    }
+}
+
+void WakemeAPI::handleDeleteAllAlarms(AsyncWebServerRequest *request)
+{
+    _state->deleteAllAlarms();
+    request->send_P(200, "text/plain", "{\"status\":\"OK\"}");
 }

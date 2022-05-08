@@ -73,11 +73,8 @@ void WakemeAlarm::checkAlarms()
     log_d("WakemeAlarm::checkAlarms. %d:%d:%d", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
 
     std::vector<Alarm *> alarms = _state->getAlarms();
-    log_d("WakemeAlarm::checkAlarms 2");
-
     for (int i = 0; i < alarms.size(); i++)
     {
-        log_d("WakemeAlarm::checkAlarms %d", i);
         if(checkAlarm(alarms[i], timeinfo))
         {
             play(alarms[i]);

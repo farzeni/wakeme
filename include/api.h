@@ -18,6 +18,7 @@ class WakemeAPI
         void handleUpdateAlarm(AsyncWebServerRequest *request, JsonVariant& json);
         void handleCreateAlarm(AsyncWebServerRequest *request, JsonVariant& json);
         void handleDeleteAlarm(AsyncWebServerRequest *request);
+        void handleDeleteAllAlarms(AsyncWebServerRequest *request);
         void handleIndex(AsyncWebServerRequest *request);
         AsyncWebServer *_server;
         WakemeState *_state;

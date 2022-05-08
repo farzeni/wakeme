@@ -24,7 +24,7 @@
 
 #define DFPLAYER_TX_PIN 17
 #define DFPLAYER_RX_PIN 16
-#define WM_ALARM_DISPLAY_PIN 35
+#define WM_ALARM_DISPLAY_PIN 32
 
 // Inputs
 

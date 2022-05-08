@@ -25,7 +25,7 @@ void setup()
     state.setup();
     inputs.setup();
     ui.setup();
-    // alarmClock.setup();
+    alarmClock.setup();
     api.begin();
 }
 
@@ -35,5 +35,5 @@ void loop(void)
     state.loop(currentMillis);
     inputs.loop(currentMillis);
     ui.loop(currentMillis);
-    // alarmClock.loop(currentMillis);
+    alarmClock.loop(currentMillis);
 }
