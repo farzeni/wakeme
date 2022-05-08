@@ -3,6 +3,8 @@
 #include <ArduinoJson.h>
 #include <Preferences.h>
 
+#define DR_REG_RNG_BASE                        0x3ff75144
+
 const long delayTime = 1000;
 
 const char *ntpServer = "pool.ntp.org";
@@ -29,7 +31,6 @@ WakemeState::~WakemeState()
 
 void WakemeState::setup()
 {
-    randomSeed(analogRead(19));
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     _preferences.begin("wakeme", false);
     loadSettings();
@@ -302,7 +303,8 @@ String generateAlarmID()
 
     for (int i = 0; i < 16; ++i)
     {
-        id += alphanum[rand() % (sizeof(alphanum) - 1)];
+        uint32_t randomNumber = READ_PERI_REG(DR_REG_RNG_BASE);
+        id += alphanum[randomNumber % (sizeof(alphanum) - 1)];
     }
 
     return id;
