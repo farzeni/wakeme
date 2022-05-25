@@ -2,6 +2,7 @@
 
 #include <state.h>
 #include <config.h>
+#include <looper.h>
 
 
 class WakemeInputs
@@ -12,5 +13,5 @@ class WakemeInputs
         void loop(unsigned long currentMillis);
     private:
         WakemeState *_state;
-        unsigned long _previousTick;
+        Looper* _looper;
 };

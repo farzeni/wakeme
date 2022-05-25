@@ -17,8 +17,8 @@ WakemeState::WakemeState()
     _minutes = 0;
     _seconds = 0;
     _isRinging = false;
-    _previousTick = 0;
     _isDisplayOn = false;
+    _looper = new Looper(delayTime);
 }
 
 WakemeState::~WakemeState()
@@ -27,6 +27,8 @@ WakemeState::~WakemeState()
     {
         delete _alarms[i];
     }
+
+    delete _looper;
 }
 
 void WakemeState::setup()
@@ -38,11 +40,8 @@ void WakemeState::setup()
 
 void WakemeState::loop(unsigned long currentMillis)
 {
-    if (currentMillis - _previousTick > delayTime)
-    {
+    _looper->loop(currentMillis, [this]() {
         struct tm timeinfo;
-
-        _previousTick = currentMillis;
 
         if (!getLocalTime(&timeinfo))
         {
@@ -53,7 +52,7 @@ void WakemeState::loop(unsigned long currentMillis)
         _hours = timeinfo.tm_hour;
         _minutes = timeinfo.tm_min;
         _seconds = timeinfo.tm_sec;
-    }
+    });
 }
 
 tm WakemeState::getTime()

@@ -15,6 +15,12 @@ WakemeAPI::WakemeAPI(WakemeState *state)
     _server->on("/ready", HTTP_GET, [this](AsyncWebServerRequest *request)
                 { handleReady(request); });
 
+    _server->on("^\\/play\\/([0-9+])$", HTTP_POST, [this](AsyncWebServerRequest *request)
+                { handlePlay(request); });
+
+    _server->on("/stop", HTTP_POST, [this](AsyncWebServerRequest *request)
+                { handleStop(request); });
+
     _server->on("/alarms", HTTP_GET, [this](AsyncWebServerRequest *request)
                 { handleGetAlarms(request); });
 
@@ -59,6 +65,25 @@ void WakemeAPI::begin()
 
 void WakemeAPI::handleReady(AsyncWebServerRequest *request)
 {
+    request->send_P(200, "application/json", "{\"status\":\"OK\"}");
+}
+
+void WakemeAPI::handlePlay(AsyncWebServerRequest *request)
+{
+    String songId = request->pathArg(0);
+
+    log_d("Playing song %s", songId.c_str());
+
+    request->send_P(200, "application/json", "{\"status\":\"OK\"}");
+}
+
+void WakemeAPI::handleStop(AsyncWebServerRequest *request)
+{
+    log_d("Stopping");
+    if (_state->isRinging())
+    {
+        _state->setIsRinging(false);
+    }
     request->send_P(200, "application/json", "{\"status\":\"OK\"}");
 }
 

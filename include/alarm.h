@@ -1,6 +1,7 @@
 #pragma once
 
 #include <state.h>
+#include <looper.h>
 
 class WakemeAlarm
 {
@@ -15,6 +16,6 @@ class WakemeAlarm
     private:
         bool checkAlarm(Alarm* alarm, tm timeinfo);
         bool _isRinging;
-        unsigned long _previousTick;
+        Looper* _looper;
         WakemeState* _state;
 };

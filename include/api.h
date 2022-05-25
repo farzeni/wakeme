@@ -14,6 +14,8 @@ class WakemeAPI
         void begin();
     private:
         void handleReady(AsyncWebServerRequest *request);
+        void handlePlay(AsyncWebServerRequest *request);
+        void handleStop(AsyncWebServerRequest *request);
         void handleGetAlarms(AsyncWebServerRequest *request);
         void handleUpdateAlarm(AsyncWebServerRequest *request, JsonVariant& json);
         void handleCreateAlarm(AsyncWebServerRequest *request, JsonVariant& json);

@@ -11,7 +11,7 @@ unsigned int contactDelayTime = WM_AWAKE_DELAY;
 WakemeInputs::WakemeInputs(WakemeState *state)
 {
     _state = state;
-    _previousTick = 0;
+    _looper = new Looper(delayTime);
 }
 
 void WakemeInputs::setup()
@@ -19,9 +19,8 @@ void WakemeInputs::setup()
 }
 
 void WakemeInputs::loop(unsigned long currentMillis)
-{
-    if (currentMillis - _previousTick > delayTime)
-    {
+{   
+    _looper->loop(currentMillis, [this, currentMillis]() {
         int stop_sensor_value = touchRead(TOUCH_SENSOR_STOP);
         if (stop_sensor_value < TOUCH_SENSOR_THRESHOLD)
         {
@@ -42,5 +41,5 @@ void WakemeInputs::loop(unsigned long currentMillis)
         {
             _state->setIsDisplayOn(false);
         }
-    }
+    });
 }

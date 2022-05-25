@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "ArduinoJson.h"
 #include <Preferences.h>
+#include "looper.h"
 
 using namespace std;
 
@@ -53,7 +54,7 @@ public:
     void storeSettings();
     void loadSettings();
     std::vector<Alarm *> getAlarms();
-    Alarm* getAlarmByID(String id);
+    Alarm *getAlarmByID(String id);
     bool addAlarm(Alarm *alarm);
     bool setAlarm(String id, Alarm *alarm);
     bool deleteAlarm(String id);
@@ -66,10 +67,10 @@ private:
     unsigned int _seconds;
     bool _isRinging;
     bool _isDisplayOn;
-    Preferences _preferences;
-
-    unsigned long _previousTick;
     std::vector<Alarm *> _alarms;
+    Preferences _preferences;
+    Looper* _looper;
+
 };
 
 bool isValidAlarmData(JsonObject data);

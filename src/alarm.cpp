@@ -17,6 +17,7 @@ WakemeAlarm::WakemeAlarm(WakemeState* state)
     _isRinging = false;
     _previousTick = 0;
     _state = state;
+    _looper = new Looper(delayTime);
 }
 
 void WakemeAlarm::setup()
@@ -36,9 +37,7 @@ void WakemeAlarm::setup()
 
 void WakemeAlarm::loop(unsigned long currentMillis)
 {
-    if (currentMillis - _previousTick > delayTime)
-    {
-        _previousTick = currentMillis;
+    _looper->loop(currentMillis, [this]() {
         log_d("is right now ringing: %d (state: %d)", _isRinging, _state->isRinging());
 
         if (_state->isRinging())
@@ -58,7 +57,7 @@ void WakemeAlarm::loop(unsigned long currentMillis)
             }
             checkAlarms();
         }
-    }
+    });
 }
 
 void WakemeAlarm::checkAlarms()
